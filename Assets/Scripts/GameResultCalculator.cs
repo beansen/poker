@@ -1,37 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
-public class GameResultCalculator : MonoBehaviour
+public class GameResultCalculator
 {
 
 	private string[] cardTypes = new string[]{"diamonds", "spades", "hearts", "clubs"};
-	private Dictionary<string, int> cardValues;
 
 	private CardValue[] tempPlayerCards;
 	private CardValue[] communityCards;
 
-	void Start ()
-	{
-		cardValues = new Dictionary<string, int>();
-
-		cardValues.Add("2", 2);
-		cardValues.Add("3", 3);
-		cardValues.Add("4", 4);
-		cardValues.Add("5", 5);
-		cardValues.Add("6", 6);
-		cardValues.Add("7", 7);
-		cardValues.Add("8", 8);
-		cardValues.Add("9", 9);
-		cardValues.Add("10", 10);
-		cardValues.Add("jack", 11);
-		cardValues.Add("queen", 12);
-		cardValues.Add("king", 13);
-		cardValues.Add("ace", 14);
-
-		tempPlayerCards = new CardValue[2];
-		communityCards = new CardValue[5];
-	}
+    public GameResultCalculator()
+    {
+        tempPlayerCards = new CardValue[2];
+        communityCards = new CardValue[5];
+    }
 
 	public void SetPlayerCard(int index, CardValue cardValue)
 	{
@@ -45,207 +26,20 @@ public class GameResultCalculator : MonoBehaviour
 
 	public void CalculateResult()
 	{
-		int[] result = GetValueResult(tempPlayerCards);
-
-		if (HasStraight(tempPlayerCards))
-		{
-			Debug.Log("Straight");
-		}
-
-		if (HasFlush(tempPlayerCards))
-		{
-			Debug.Log("Flush");
-		}
-
-		if (result[0] == 5)
-		{
-			Debug.Log("Four of a kind");
-		} else if (result[0] == 4)
-		{
-			Debug.Log("Full house");
-		} else if (result[0] == 3)
-		{
-			Debug.Log("Three of a kind");
-		} else if (result[0] == 2)
-		{
-			Debug.Log("Two pairs");
-		} else if (result[0] == 1)
-		{
-			Debug.Log("One pair");
-		} else
-		{
-			Debug.Log("Highest card");
-		}
-	}
-
-	private bool HasFlush(CardValue[] playerCards)
-	{
-		int diamondsCount = 0;
-		int spadesCount = 0;
-		int clubsCount = 0;
-		int heartsCount = 0;
-
-		for (int i = 0; i < playerCards.Length; i++)
-		{
-			if (playerCards[i].GetCardType().Equals("spades"))
-			{
-				spadesCount++;
-			} else if (playerCards[i].GetCardType().Equals("clubs"))
-			{
-				clubsCount++;
-			} else if (playerCards[i].GetCardType().Equals("hearts"))
-			{
-				heartsCount++;
-			} else
-			{
-				diamondsCount++;
-			}
-		}
-
-		for (int i = 0; i < communityCards.Length; i++)
-		{
-			if (communityCards[i].GetCardType().Equals("spades"))
-			{
-				spadesCount++;
-			} else if (communityCards[i].GetCardType().Equals("clubs"))
-			{
-				clubsCount++;
-			} else if (communityCards[i].GetCardType().Equals("hearts"))
-			{
-				heartsCount++;
-			} else
-			{
-				diamondsCount++;
-			}
-		}
-
-		return diamondsCount > 4 || heartsCount > 4 || clubsCount > 4 || spadesCount > 4;
-	}
-
-	private bool HasStraight(CardValue[] playerCards)
-	{
-		List<int> straight = new List<int>();
-
-		for (int i = 0; i < playerCards.Length; i++)
-		{
-			int cardValue = cardValues[tempPlayerCards[i].GetValue()];
-
-			straight.Add(cardValue);
-		}
-
-		for (int i = 0; i < communityCards.Length; i++)
-		{
-			int cardValue = cardValues[communityCards[i].GetValue()];
-
-			straight.Add(cardValue);
-		}
-
-		straight.Sort();
-
-		int consecutiveCards = 0;
-
-		if (straight[0] == 2 && straight[straight.Count - 1] == 14)
-		{
-			consecutiveCards++;
-		}
-
-		for (int i = 0; i < straight.Count; i++)
-		{
-			if (i < straight.Count - 1)
-			{
-				if (straight[i] + 1 == straight[i + 1])
-				{
-					consecutiveCards++;
-
-					if (consecutiveCards > 3)
-					{
-						return true;
-					}
-				} else
-				{
-					consecutiveCards = 0;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	private int[] GetValueResult(CardValue[] playerCards)
-	{
-		int[] cardCount = new int[13];
-		int highestCard = 0;
-
-		for (int i = 0; i < playerCards.Length; i++)
-		{
-			int cardValue = cardValues[tempPlayerCards[i].GetValue()];
-			if (cardValue > highestCard)
-			{
-				highestCard = cardValue;
-			}
-			cardCount[cardValue - 2]++;
-		}
-
-		for (int i = 0; i < communityCards.Length; i++)
-		{
-			int cardValue = cardValues[communityCards[i].GetValue()];
-			if (cardValue > highestCard)
-			{
-				highestCard = cardValue;
-			}
-			cardCount[cardValue - 2]++;
-		}
-
-		int quadIndex = -1;
-		List<int> tripleIndex = new List<int>();
-		List<int> doubleIndex = new List<int>();
-
-		tripleIndex.Sort();
-		doubleIndex.Sort();
-
-		for (int i = 0; i < cardCount.Length; i++)
-		{
-			if (cardCount[i] == 4)
-			{
-				quadIndex = i;
-			}
-
-			if (cardCount[i] == 3)
-			{
-				tripleIndex.Add(i);
-			}
-
-			if (cardCount[i] == 2)
-			{
-				doubleIndex.Add(i);
-			}
-		}
-
-		if (quadIndex != -1)
-		{
-			return new int[]{5, quadIndex};
-		}
-
-		if (tripleIndex.Count > 0 && doubleIndex.Count > 0)
-		{
-			return new int[]{4, tripleIndex[tripleIndex.Count - 1], doubleIndex[doubleIndex.Count - 1]};
-		}
-
-		if (tripleIndex.Count > 0)
-		{
-			return new int[]{3, tripleIndex[tripleIndex.Count - 1]};
-		}
-
-		if (doubleIndex.Count > 1)
-		{
-			return new int[]{2, doubleIndex[doubleIndex.Count - 2], doubleIndex[doubleIndex.Count - 1]};
-		}
-
-		if (doubleIndex.Count == 1)
-		{
-			return new int[]{1, doubleIndex[0]};
-		}
-
-		return new int[]{0, highestCard};
-	}
+       
+    }
 }
+
+/*
+Pairs - When two players have a pair, the highest pair wins.   When both players have the same pair, the next highest card wins.   This card is called the 'Kicker'.   For example, 5-5-J-7-4 beats 5-5-9-8-7.
+If the Pairs and the Kickers are the same, the consideration continues onward to the next highest card in the hand.   5-5-J-6-4 beats 5-5-J-5-3.   This evaluation process continues until both hands are exactly the same or there is a winner.
+
+Two Pairs - the higher ranked pair wins.   A-A-7-7-3 beats K-K-J-J-9.   If the top pairs are equal, the second pair breaks the tie.   If both the top pair and the second pair are equal, the kicker (the next highest card) breaks the tie.
+Three-of-a-Kind - the higher ranking card wins.   J-J-J-7-6 beats 10-10-10-8-7.
+Straights - the Straight with the highest ranking card wins.   A-K-Q-J-10 beats 10-9-8-7-6, as the A beats the 10.   If both Straights contain cards of the same rank, the pot is split.
+Flush - the Flush with the highest ranking card wins.   A-9-8-7-5 beats K-Q-J-5-4.   If the highest cards in each Flush are the same, the next highest cards are compared.   This process continues until either the hands are shown to be exactly the same, or there is a winner.
+Full House - the hand with the higher ranking set of three cards wins.   K-K-K-4-4 beats J-J-J-A-A.
+Four of a Kind - the higher ranked set of four cards wins.   7-7-7-7-2 beats 5-5-5-5-A.
+Straight Flush - ties are broken in the same manner as a straight, as the highest ranking card is the winner.
+Royal Flush - Sorry, Two or more Royal Flushes split the pot.
+*/

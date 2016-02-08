@@ -8,24 +8,20 @@ public class CardDealer : MonoBehaviour {
 	private List<string> cards;
 	private string[] cardTypes = new string[]{"diamonds", "spades", "hearts", "clubs"};
 	private string[] cardImages = new string[]{"2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king", "ace"};
-	private Transform[] playerSpots = new Transform[2];
-	private Transform[] communitySpots = new Transform[5];
+    private Transform playerCards;
+	private Transform communityCards;
 
-	public GameResultCalculator resultCalculator;
+	private GameResultCalculator resultCalculator;
 
 	public GameObject cardPrefab;
 
 	// Use this for initialization
 	void Start ()
 	{
-		playerSpots[0] = GameObject.Find("Canvas/Panel/PlayerCards/Spot_1").transform;
-		playerSpots[1] = GameObject.Find("Canvas/Panel/PlayerCards/Spot_2").transform;
+		playerCards = GameObject.Find("Canvas/Panel/PlayerCards").transform;
+		communityCards = GameObject.Find("Canvas/Panel/CommunityCards").transform;
 
-		communitySpots[0] = GameObject.Find("Canvas/Panel/CommunityCards/Spot_1").transform;
-		communitySpots[1] = GameObject.Find("Canvas/Panel/CommunityCards/Spot_2").transform;
-		communitySpots[2] = GameObject.Find("Canvas/Panel/CommunityCards/Spot_3").transform;
-		communitySpots[3] = GameObject.Find("Canvas/Panel/CommunityCards/Spot_4").transform;
-		communitySpots[4] = GameObject.Find("Canvas/Panel/CommunityCards/Spot_5").transform;
+        resultCalculator = new GameResultCalculator();
 
 		cards = new List<string>();
 		AddCards();
@@ -51,10 +47,8 @@ public class CardDealer : MonoBehaviour {
 			int index = Random.Range(0, cards.Count);
 			GameObject card = Instantiate(cardPrefab);
 			card.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/" + cards[index]);
-			RectTransform rectTransform = card.GetComponent<RectTransform>();
-			rectTransform.SetParent(playerSpots[i]);
-			rectTransform.offsetMin = new Vector2();
-			rectTransform.offsetMax = new Vector2(1, 1);
+            card.transform.SetParent(playerCards);
+            card.transform.localScale = new Vector3(1, 1, 1);
 			resultCalculator.SetPlayerCard(i, new CardValue(cards[index]));
 			cards.RemoveAt(index);
 		}
@@ -67,25 +61,24 @@ public class CardDealer : MonoBehaviour {
 			int index = Random.Range(0, cards.Count);
 			GameObject card = Instantiate(cardPrefab);
 			card.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/" + cards[index]);
-			RectTransform rectTransform = card.GetComponent<RectTransform>();
-			rectTransform.SetParent(communitySpots[i]);
-			rectTransform.offsetMin = new Vector2();
-			rectTransform.offsetMax = new Vector2(1, 1);
-			resultCalculator.SetCommunityCard(i, new CardValue(cards[index]));
+            card.transform.SetParent(communityCards);
+            card.transform.localScale = new Vector3(1, 1, 1);
+            resultCalculator.SetCommunityCard(i, new CardValue(cards[index]));
 			cards.RemoveAt(index);
 		}
 	}
 
 	public void Reset()
 	{
-		DestroyImmediate(playerSpots[0].GetChild(0).gameObject);
-		DestroyImmediate(playerSpots[1].GetChild(0).gameObject);
+        for (int i = playerCards.childCount - 1; i >= 0;  i--) {
+            DestroyImmediate(playerCards.transform.GetChild(i).gameObject);
+        }
 
-		for (int i = 0; i < 5; i++)
-		{
-			DestroyImmediate(communitySpots[i].GetChild(0).gameObject);
-		}
+        for (int i = communityCards.childCount - 1; i >= 0; i--)
+        {
+            DestroyImmediate(communityCards.transform.GetChild(i).gameObject);
+        }
 
-		AddCards();
+        AddCards();
 	}
 }
