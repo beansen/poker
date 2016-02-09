@@ -3,6 +3,7 @@
 
 	private string value;
 	private string type;
+	private int count = 1;
 
 	public CardValue(string value)
 	{
@@ -81,5 +82,13 @@
     public string GetCardType()
 	{
 		return type;
+	}
+
+	public void IncreaseCount() {
+        count++;
+	}
+
+	public int GetCount() {
+		return count;
 	}
 }

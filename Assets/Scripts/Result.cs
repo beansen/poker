@@ -1,238 +1,332 @@
 ﻿using System.Collections.Generic;
 
-public class Result {
+public class Result
+{
 
-    private int index;
-    private int highestCard;
-    private int secondHighestCard;
+	private int resultIndex = -1;
+	private CardValue communityKicker;
+	private CardValue playerKicker;
+	private CardValue[] playerHand;
 
-    private CardValue[] playerCards;
+	public int ResultIndex {
+		get {
+			return resultIndex;
+		}
+	}
 
-    public Result(int index, int highestCard)
-    {
-        this.index = index;
-        this.highestCard = highestCard;
-    }
+	public CardValue CommunityKicker {
+		get {
+			return communityKicker;
+		}
+	}
 
-    public Result(CardValue[] playerCards, CardValue[] communityCards)
-    {
+	public CardValue PlayerKicker {
+		get {
+			return playerKicker;
+		}
+	}
 
-    }
+	public CardValue[] PlayerHand {
+		get {
+			return playerHand;
+		}
+	}
 
-    public void SetSecondHighestCard(int index)
-    {
-        this.secondHighestCard = index;
-    }
+	private List<CardValue> cards;
 
-    private int[] CheckForFlush(CardValue[] playerCards)
-    {
-        int diamondsCount = 0;
-        int spadesCount = 0;
-        int clubsCount = 0;
-        int heartsCount = 0;
+	public Result(CardValue[] playerCards, CardValue[] communityCards)
+	{
+		playerKicker = playerCards[0].GetIntegerValue() > playerCards[1].GetIntegerValue() ? playerCards[0] : playerCards[1];
 
-        for (int i = 0; i < playerCards.Length; i++)
-        {
-            if (playerCards[i].GetCardType().Equals("spades"))
-            {
-                spadesCount++;
-            }
-            else if (playerCards[i].GetCardType().Equals("clubs"))
-            {
-                clubsCount++;
-            }
-            else if (playerCards[i].GetCardType().Equals("hearts"))
-            {
-                heartsCount++;
-            }
-            else
-            {
-                diamondsCount++;
-            }
-        }
+		communityKicker = communityCards[0];
 
-        for (int i = 0; i < communityCards.Length; i++)
-        {
-            if (communityCards[i].GetCardType().Equals("spades"))
-            {
-                spadesCount++;
-            }
-            else if (communityCards[i].GetCardType().Equals("clubs"))
-            {
-                clubsCount++;
-            }
-            else if (communityCards[i].GetCardType().Equals("hearts"))
-            {
-                heartsCount++;
-            }
-            else
-            {
-                diamondsCount++;
-            }
-        }
+		for (int i = 1; i < communityCards.Length; i++)
+		{
+			if (communityCards[i].GetIntegerValue() > communityKicker.GetIntegerValue())
+			{
+				communityKicker = communityCards[i];
+			}
+		}
 
-        int[] flush = new int[4];
+		cards = new List<CardValue>();
+		cards.AddRange(playerCards);
+		cards.AddRange(communityCards);
 
-        flush[0] = diamondsCount > 4 ? 1 : 0;
-        flush[1] = spadesCount > 4 ? 1 : 0;
-        flush[2] = heartsCount > 4 ? 1 : 0;
-        flush[3] = clubsCount > 4 ? 1 : 0;
+		cards.Sort((p1, p2) => p1.GetIntegerValue().CompareTo(p2.GetIntegerValue()));
+	}
 
-        return flush;
-    }
+	public void CalculateResult()
+	{
+		List<CardValue> straight = GetStraight();
 
-    private List<CardValue> CheckForStraight(CardValue[] playerCards)
-    {
-        List<CardValue> tempCardValues = new List<CardValue>();
-        tempCardValues.AddRange(playerCards);
-        tempCardValues.AddRange(communityCards);
+		if (straight.Count > 4)
+		{
+			CheckForHighFlush(straight);
+		}
 
-        tempCardValues.Sort((p1, p2) => p1.GetIntegerValue().CompareTo(p2.GetIntegerValue()));
+		if (resultIndex == -1)
+		{
+			playerHand = GetCardValueResult();
 
-        List<CardValue> consecutiveCards = new List<CardValue>();
+			if (resultIndex < 6)
+			{
+				CardValue flush = GetFlush();
 
-        int start = 0;
-        int endOffset = 0;
+				if (flush != null)
+				{
+					resultIndex = (int) PlayerResult.Flush;
+					playerHand = new CardValue[] {flush};
+				} else if (straight.Count > 4)
+				{
+					resultIndex = (int) PlayerResult.Straight;
+					playerHand = new CardValue[] {straight[straight.Count - 1]};
+				}
+			}
+		} else
+		{
+			playerHand = new CardValue[]{straight[straight.Count - 1]};
+		}
+	}
 
-        if (tempCardValues[0].GetIntegerValue() == 2 && tempCardValues[tempCardValues.Count - 1].GetIntegerValue() == 14)
-        {
-            consecutiveCards.Add(tempCardValues[tempCardValues.Count - 1]);
-            consecutiveCards.Add(tempCardValues[0]);
-            start = 1;
-            endOffset = 1;
-        }
+	private void CheckForHighFlush(List<CardValue> straight)
+	{
+		string type = straight[straight.Count - 1].GetCardType();
+		bool isHighFlush = true;
 
-        for (int i = start; i < tempCardValues.Count - endOffset; i++)
-        {
-            if (consecutiveCards.Count == 0)
-            {
-                consecutiveCards.Add(tempCardValues[i]);
-            }
-            else
-            {
-                if (tempCardValues[i].GetIntegerValue() == consecutiveCards[consecutiveCards.Count - 1].GetIntegerValue() + 1)
-                {
-                    consecutiveCards.Add(tempCardValues[i]);
-                }
-                else
-                {
-                    if (consecutiveCards.Count > 4)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        consecutiveCards.Clear();
-                    }
-                }
-            }
-        }
+		for (int i = straight.Count - 1; i >= 0; i--)
+		{
+			if (!straight[i].GetCardType().Equals(type))
+			{
+				isHighFlush = false;
+				break;
+			}
+		}
 
-        return consecutiveCards;
-    }
+		if (straight[straight.Count - 1].GetIntegerValue() == 14)
+		{
+			if (isHighFlush)
+			{
+				resultIndex = (int) PlayerResult.RoyalFlush;
+			}
+		} else
+		{
+			if (isHighFlush)
+			{
+				resultIndex = (int) PlayerResult.StraightFlush;
+			}
+		}
+	}
 
-    private int[] GetValueResult(CardValue[] playerCards)
-    {
-        int[] cardCount = new int[13];
-        int highestCard = 0;
+	private CardValue GetFlush()
+	{
+		int diamondsCount = 0;
+		int spadesCount = 0;
+		int clubsCount = 0;
+		int heartsCount = 0;
 
-        for (int i = 0; i < playerCards.Length; i++)
-        {
-            int cardValue = playerCards[i].GetIntegerValue();
-            if (cardValue > highestCard)
-            {
-                highestCard = cardValue;
-            }
-            cardCount[cardValue - 2]++;
-        }
+		CardValue spadesKicker;
+		CardValue clubsKicker;
+		CardValue heartsKicker;
+		CardValue diamondsKicker;
 
-        for (int i = 0; i < communityCards.Length; i++)
-        {
-            int cardValue = communityCards[i].GetIntegerValue();
-            if (cardValue > highestCard)
-            {
-                highestCard = cardValue;
-            }
-            cardCount[cardValue - 2]++;
-        }
+		for (int i = 0; i < cards.Count; i++)
+		{
+			if (cards[i].GetCardType().Equals("spades"))
+			{
+				if (spadesKicker == null)
+				{
+					spadesKicker = cards[i];
+				} else if (spadesKicker.GetIntegerValue() < cards[i].GetIntegerValue())
+				{
+					spadesKicker = cards[i];
+				}
 
-        int quadIndex = -1;
-        List<int> tripleIndex = new List<int>();
-        List<int> doubleIndex = new List<int>();
+				spadesCount++;
+			}
+			else if (cards[i].GetCardType().Equals("clubs"))
+			{
+				if (clubsKicker == null)
+				{
+					clubsKicker = cards[i];
+				} else if (clubsKicker.GetIntegerValue() < cards[i].GetIntegerValue())
+				{
+					clubsKicker = cards[i];
+				}
 
-        for (int i = 0; i < cardCount.Length; i++)
-        {
-            if (cardCount[i] == 4)
-            {
-                quadIndex = i;
-            }
+				clubsCount++;
+			}
+			else if (cards[i].GetCardType().Equals("hearts"))
+			{
+				if (heartsKicker == null)
+				{
+					heartsKicker = cards[i];
+				} else if (heartsKicker.GetIntegerValue() < cards[i].GetIntegerValue())
+				{
+					heartsKicker = cards[i];
+				}
 
-            if (cardCount[i] == 3)
-            {
-                tripleIndex.Add(i);
-            }
+				heartsCount++;
+			}
+			else
+			{
+				if (diamondsKicker == null)
+				{
+					diamondsKicker = cards[i];
+				} else if (diamondsKicker.GetIntegerValue() < cards[i].GetIntegerValue())
+				{
+					diamondsKicker = cards[i];
+				}
 
-            if (cardCount[i] == 2)
-            {
-                doubleIndex.Add(i);
-            }
-        }
+				diamondsCount++;
+			}
+		}
 
-        tripleIndex.Sort();
-        doubleIndex.Sort();
+		CardValue flushCard = null;
 
-        if (quadIndex != -1)
-        {
-            return new int[] { 5, quadIndex };
-        }
+		if (spadesCount > 4)
+		{
+			flushCard = spadesKicker;
+		} else if (clubsCount > 4)
+		{
+			flushCard = clubsKicker;
+		} else if (heartsCount > 4)
+		{
+			flushCard = heartsKicker;
+		} else if (diamondsCount > 4)
+		{
+			flushCard = diamondsKicker;
+		}
 
-        if (tripleIndex.Count > 0 && doubleIndex.Count > 0)
-        {
-            return new int[] { 4, tripleIndex[tripleIndex.Count - 1], doubleIndex[doubleIndex.Count - 1] };
-        }
+		return flushCard;
+	}
 
-        if (tripleIndex.Count > 0)
-        {
-            return new int[] { 3, highestCard, tripleIndex[tripleIndex.Count - 1] };
-        }
+	private List<CardValue> GetStraight()
+	{
+		List<CardValue> consecutiveCards = new List<CardValue>();
 
-        if (doubleIndex.Count > 1)
-        {
-            return new int[] { 2, highestCard, doubleIndex[doubleIndex.Count - 2], doubleIndex[doubleIndex.Count - 1] };
-        }
+		int start = 0;
+		int endOffset = 0;
 
-        if (doubleIndex.Count == 1)
-        {
-            return new int[] { 1, highestCard, doubleIndex[0] };
-        }
+		if (cards[0].GetIntegerValue() == 2 && cards[cards.Count - 1].GetIntegerValue() == 14)
+		{
+			consecutiveCards.Add(cards[cards.Count - 1]);
+			consecutiveCards.Add(cards[0]);
+			start = 1;
+			endOffset = 1;
+		}
 
-        return new int[] { 0, highestCard };
-    }
+		for (int i = start; i < cards.Count - endOffset; i++)
+		{
+			if (consecutiveCards.Count == 0)
+			{
+				consecutiveCards.Add(cards[i]);
+			}
+			else
+			{
+				if (cards[i].GetIntegerValue() == consecutiveCards[consecutiveCards.Count - 1].GetIntegerValue() + 1)
+				{
+					consecutiveCards.Add(cards[i]);
+				}
+				else
+				{
+					if (consecutiveCards.Count > 4)
+					{
+						break;
+					}
+					else
+					{
+						consecutiveCards.Clear();
+					}
+				}
+			}
+		}
 
-    private int FlushIndex(int[] flush)
-    {
-        for (int i = 0; i < flush.Length; i++)
-        {
-            if (flush[i] == 1)
-            {
-                return i;
-            }
-        }
+		return consecutiveCards;
+	}
 
-        return -1;
-    }
+	private CardValue[] GetCardValueResult()
+	{
+		List<CardValue> tempCards = new List<CardValue>();
+		tempCards.AddRange(cards.GetRange(1, cards.Count - 1));
+
+		for (int i = 0; i < cards.Count; i++)
+		{
+			for (int k = tempCards.Count - 1; k >= 0; k--)
+			{
+				if (cards[i].GetIntegerValue() == tempCards[k].GetIntegerValue())
+				{
+					cards[i].IncreaseCount();
+					tempCards.RemoveAt(k);
+				}
+			}
+		}
+
+		List<CardValue> threeOfAKind = new List<CardValue>();
+		List<CardValue> pair = new List<CardValue>();
+
+		for (int i = 0; i < cards.Count; i++)
+		{
+			if (cards[i].GetCount() == 4)
+			{
+				resultIndex = (int) PlayerResult.FourOfAKind;
+
+				return new CardValue[]{cards[i]};
+			} else if (cards[i].GetCount() == 3)
+			{
+				threeOfAKind.Add(cards[i]);
+			} else if (cards[i].GetCount() == 2)
+			{
+				pair.Add(cards[i]);
+			}
+		}
+
+		threeOfAKind.Sort((p1, p2) => p1.GetIntegerValue().CompareTo(p2.GetIntegerValue()));
+		pair.Sort((p1, p2) => p1.GetIntegerValue().CompareTo(p2.GetIntegerValue()));
+
+		CardValue[] result = new CardValue[];
+
+		if (threeOfAKind.Count > 0 && pair.Count > 0)
+		{
+			resultIndex = (int) PlayerResult.FullHouse;
+
+			result = new CardValue[]{threeOfAKind[threeOfAKind.Count - 1], pair[pair.Count - 1]};
+		} else if (threeOfAKind.Count > 0)
+		{
+			resultIndex = (int) PlayerResult.FullHouse;
+
+			result = new CardValue[]{threeOfAKind[threeOfAKind.Count - 1], pair[pair.Count - 1]};
+		} else if (pair.Count > 0)
+		{
+			if (pair.Count > 1)
+			{
+				resultIndex = (int) PlayerResult.TwoPairs;
+
+				result = new CardValue[]{pair[pair.Count - 1], pair[pair.Count - 2]};
+			} else
+			{
+				resultIndex = (int) PlayerResult.Pair;
+
+				result = new CardValue[]{pair[0]};
+			}
+		} else
+		{
+			resultIndex = (int) PlayerResult.HighestCard;
+		}
+
+		return result;
+	}
 }
 
 public enum PlayerResult
 {
-    HighestCard,
-    Pair,
-    TwoPairs,
-    ThreeOfAKind,
-    Straight,
-    Flush,
-    FullHouse,
-    FourOfAKind,
-    StraightFlush,
-    RoyalFlush
+	HighestCard,
+	Pair,
+	TwoPairs,
+	ThreeOfAKind,
+	Straight,
+	Flush,
+	FullHouse,
+	FourOfAKind,
+	StraightFlush,
+	RoyalFlush
 }
