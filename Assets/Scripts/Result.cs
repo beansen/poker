@@ -124,10 +124,10 @@ public class Result
 		int clubsCount = 0;
 		int heartsCount = 0;
 
-		CardValue spadesKicker;
-		CardValue clubsKicker;
-		CardValue heartsKicker;
-		CardValue diamondsKicker;
+		CardValue spadesKicker = null;
+		CardValue clubsKicker = null;
+		CardValue heartsKicker = null;
+		CardValue diamondsKicker = null;
 
 		for (int i = 0; i < cards.Count; i++)
 		{
@@ -283,7 +283,7 @@ public class Result
 		threeOfAKind.Sort((p1, p2) => p1.GetIntegerValue().CompareTo(p2.GetIntegerValue()));
 		pair.Sort((p1, p2) => p1.GetIntegerValue().CompareTo(p2.GetIntegerValue()));
 
-		CardValue[] result = new CardValue[];
+		CardValue[] result = new CardValue[0];
 
 		if (threeOfAKind.Count > 0 && pair.Count > 0)
 		{
