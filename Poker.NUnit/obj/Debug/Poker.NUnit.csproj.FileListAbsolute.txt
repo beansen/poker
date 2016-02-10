@@ -1,0 +1,6 @@
+C:\Users\Beansen\Unity projects\poker\Poker.NUnit\bin\Debug\Poker.NUnit.dll
+C:\Users\Beansen\Unity projects\poker\Poker.NUnit\bin\Debug\Poker.NUnit.pdb
+C:\Users\Beansen\Unity projects\poker\Poker.NUnit\bin\Debug\nunit.framework.dll
+C:\Users\Beansen\Unity projects\poker\Poker.NUnit\bin\Debug\nunit.framework.xml
+C:\Users\Beansen\Unity projects\poker\Poker.NUnit\obj\Debug\Poker.NUnit.dll
+C:\Users\Beansen\Unity projects\poker\Poker.NUnit\obj\Debug\Poker.NUnit.pdb

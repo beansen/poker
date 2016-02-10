@@ -7,7 +7,7 @@ public class CardDealer : MonoBehaviour {
 
 	private List<string> cards;
 	private string[] cardTypes = new string[]{"diamonds", "spades", "hearts", "clubs"};
-	private string[] cardImages = new string[]{"2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king", "ace"};
+	private string[] cardValues = new string[]{"2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king", "ace"};
     private Transform playerCards;
 	private Transform communityCards;
 
@@ -33,9 +33,9 @@ public class CardDealer : MonoBehaviour {
 
 		for (int i = 0; i < cardTypes.Length; i++)
 		{
-			for (int k = 0; k < cardImages.Length; k++)
+			for (int k = 0; k < cardValues.Length; k++)
 			{
-				cards.Add(cardImages[k] + "_of_" + cardTypes[i]);
+				cards.Add(cardValues[k] + "_of_" + cardTypes[i]);
 			}
 		}
 	}
