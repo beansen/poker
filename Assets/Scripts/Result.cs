@@ -205,17 +205,15 @@ public class Result
 		List<CardValue> consecutiveCards = new List<CardValue>();
 
 		int start = 0;
-		int endOffset = 0;
 
 		if (cards[0].GetIntegerValue() == 2 && cards[cards.Count - 1].GetIntegerValue() == 14)
 		{
 			consecutiveCards.Add(cards[cards.Count - 1]);
 			consecutiveCards.Add(cards[0]);
 			start = 1;
-			endOffset = 1;
 		}
 
-		for (int i = start; i < cards.Count - endOffset; i++)
+		for (int i = start; i < cards.Count; i++)
 		{
 			if (consecutiveCards.Count == 0)
 			{
@@ -227,7 +225,7 @@ public class Result
 				{
 					consecutiveCards.Add(cards[i]);
 				}
-				else
+				else if (cards[i].GetIntegerValue() != consecutiveCards[consecutiveCards.Count - 1].GetIntegerValue())
 				{
 					if (consecutiveCards.Count > 4)
 					{
