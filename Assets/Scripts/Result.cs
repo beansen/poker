@@ -103,6 +103,7 @@ public class Result
 			}
 		}
 
+		int k = 0;
 		if (straight[straight.Count - 1].GetIntegerValue() == 14)
 		{
 			if (isHighFlush)
@@ -235,6 +236,7 @@ public class Result
 					else
 					{
 						consecutiveCards.Clear();
+						consecutiveCards.Add(cards[i]);
 					}
 				}
 			}
