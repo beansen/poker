@@ -293,7 +293,7 @@ public class Result
 			result = new CardValue[]{threeOfAKind[threeOfAKind.Count - 1], pair[pair.Count - 1]};
 		} else if (threeOfAKind.Count > 0)
 		{
-			resultIndex = (int) PlayerResult.FullHouse;
+			resultIndex = (int) PlayerResult.ThreeOfAKind;
 
 			result = new CardValue[]{threeOfAKind[threeOfAKind.Count - 1]};
 		} else if (pair.Count > 0)

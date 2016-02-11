@@ -20,7 +20,7 @@ public class ResultCalculation
 	    Result result = new Result(new CardValue[]{firstCard, secondCard}, new CardValue[]{thirdCard, fourthCard, fifthCard, sixthCard, seventhCard});
 	    result.CalculateResult();
 
-	    Assert.AreEqual(0, result.ResultIndex);
+	    Assert.AreEqual((int) PlayerResult.HighestCard, result.ResultIndex);
     }
 
 	[Test]
@@ -37,7 +37,7 @@ public class ResultCalculation
 		Result result = new Result(new CardValue[]{firstCard, secondCard}, new CardValue[]{thirdCard, fourthCard, fifthCard, sixthCard, seventhCard});
 		result.CalculateResult();
 
-		Assert.AreEqual(1, result.ResultIndex);
+		Assert.AreEqual((int) PlayerResult.Pair, result.ResultIndex);
 	}
 
 	[Test]
@@ -54,7 +54,7 @@ public class ResultCalculation
 		Result result = new Result(new CardValue[]{firstCard, secondCard}, new CardValue[]{thirdCard, fourthCard, fifthCard, sixthCard, seventhCard});
 		result.CalculateResult();
 
-		Assert.AreEqual(2, result.ResultIndex);
+		Assert.AreEqual((int) PlayerResult.TwoPairs, result.ResultIndex);
 	}
 
 	[Test]
@@ -71,6 +71,74 @@ public class ResultCalculation
 		Result result = new Result(new CardValue[]{firstCard, secondCard}, new CardValue[]{thirdCard, fourthCard, fifthCard, sixthCard, seventhCard});
 		result.CalculateResult();
 
-		Assert.AreEqual(3, result.ResultIndex);
+		Assert.AreEqual((int) PlayerResult.ThreeOfAKind, result.ResultIndex);
+	}
+
+	[Test]
+	public void CalculateResult_ResultShouldBeStraight()
+	{
+		CardValue firstCard = new CardValue(cardValues[0] + "_of_" + cardTypes[0]);
+		CardValue secondCard = new CardValue(cardValues[5] + "_of_" + cardTypes[1]);
+		CardValue thirdCard = new CardValue(cardValues[3] + "_of_" + cardTypes[3]);
+		CardValue fourthCard = new CardValue(cardValues[1] + "_of_" + cardTypes[1]);
+		CardValue fifthCard = new CardValue(cardValues[2] + "_of_" + cardTypes[0]);
+		CardValue sixthCard = new CardValue(cardValues[12] + "_of_" + cardTypes[2]);
+		CardValue seventhCard = new CardValue(cardValues[9] + "_of_" + cardTypes[3]);
+
+		Result result = new Result(new CardValue[]{firstCard, secondCard}, new CardValue[]{thirdCard, fourthCard, fifthCard, sixthCard, seventhCard});
+		result.CalculateResult();
+
+		Assert.AreEqual((int) PlayerResult.Straight, result.ResultIndex);
+	}
+
+	[Test]
+	public void CalculateResult_ResultShouldBeStraightWithHighestValueFive()
+	{
+		CardValue firstCard = new CardValue(cardValues[0] + "_of_" + cardTypes[0]);
+		CardValue secondCard = new CardValue(cardValues[5] + "_of_" + cardTypes[1]);
+		CardValue thirdCard = new CardValue(cardValues[3] + "_of_" + cardTypes[3]);
+		CardValue fourthCard = new CardValue(cardValues[1] + "_of_" + cardTypes[1]);
+		CardValue fifthCard = new CardValue(cardValues[2] + "_of_" + cardTypes[0]);
+		CardValue sixthCard = new CardValue(cardValues[12] + "_of_" + cardTypes[2]);
+		CardValue seventhCard = new CardValue(cardValues[9] + "_of_" + cardTypes[3]);
+
+		Result result = new Result(new CardValue[]{firstCard, secondCard}, new CardValue[]{thirdCard, fourthCard, fifthCard, sixthCard, seventhCard});
+		result.CalculateResult();
+
+		Assert.AreEqual(thirdCard, result.PlayerHand[0]);
+	}
+
+	[Test]
+	public void CalculateResult_ResultShouldBeStraightWithHighestValueAce()
+	{
+		CardValue firstCard = new CardValue(cardValues[10] + "_of_" + cardTypes[0]);
+		CardValue secondCard = new CardValue(cardValues[5] + "_of_" + cardTypes[1]);
+		CardValue thirdCard = new CardValue(cardValues[11] + "_of_" + cardTypes[3]);
+		CardValue fourthCard = new CardValue(cardValues[8] + "_of_" + cardTypes[1]);
+		CardValue fifthCard = new CardValue(cardValues[2] + "_of_" + cardTypes[0]);
+		CardValue sixthCard = new CardValue(cardValues[12] + "_of_" + cardTypes[2]);
+		CardValue seventhCard = new CardValue(cardValues[9] + "_of_" + cardTypes[3]);
+
+		Result result = new Result(new CardValue[]{firstCard, secondCard}, new CardValue[]{thirdCard, fourthCard, fifthCard, sixthCard, seventhCard});
+		result.CalculateResult();
+
+		Assert.AreEqual(sixthCard, result.PlayerHand[0]);
+	}
+
+	[Test]
+	public void CalculateResult_ResultShouldBeFlush()
+	{
+		CardValue firstCard = new CardValue(cardValues[10] + "_of_" + cardTypes[0]);
+		CardValue secondCard = new CardValue(cardValues[5] + "_of_" + cardTypes[0]);
+		CardValue thirdCard = new CardValue(cardValues[2] + "_of_" + cardTypes[3]);
+		CardValue fourthCard = new CardValue(cardValues[8] + "_of_" + cardTypes[0]);
+		CardValue fifthCard = new CardValue(cardValues[2] + "_of_" + cardTypes[0]);
+		CardValue sixthCard = new CardValue(cardValues[12] + "_of_" + cardTypes[2]);
+		CardValue seventhCard = new CardValue(cardValues[9] + "_of_" + cardTypes[0]);
+
+		Result result = new Result(new CardValue[]{firstCard, secondCard}, new CardValue[]{thirdCard, fourthCard, fifthCard, sixthCard, seventhCard});
+		result.CalculateResult();
+
+		Assert.AreEqual((int) PlayerResult.Flush, result.ResultIndex);
 	}
 }
