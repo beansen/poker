@@ -7,6 +7,56 @@ public class ResultCalculation
 	private string[] cardValues = new string[]{"2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king", "ace"};
 
     [Test]
+    public void PlayerCards_HighestCardShouldBeSelectedAsKicker()
+    {
+        CardValue firstCard = new CardValue(cardValues[0] + "_of_" + cardTypes[0]);
+        CardValue secondCard = new CardValue(cardValues[4] + "_of_" + cardTypes[3]);
+
+        Result result = new Result(new CardValue[] { firstCard, secondCard }, new CardValue[] { firstCard });
+
+        Assert.AreEqual(secondCard, result.PlayerKicker);
+    }
+
+    [Test]
+    public void PlayerCards_LowestCardShouldNotBeSelectedAsKicker()
+    {
+        CardValue firstCard = new CardValue(cardValues[0] + "_of_" + cardTypes[0]);
+        CardValue secondCard = new CardValue(cardValues[4] + "_of_" + cardTypes[3]);
+
+        Result result = new Result(new CardValue[] { firstCard, secondCard }, new CardValue[] { firstCard });
+
+        Assert.AreNotEqual(firstCard, result.PlayerKicker);
+    }
+
+    [Test]
+    public void CommunityCards_HighestCardShouldBeSelectedAsKicker()
+    {
+        CardValue firstCard = new CardValue(cardValues[0] + "_of_" + cardTypes[0]);
+        CardValue secondCard = new CardValue(cardValues[7] + "_of_" + cardTypes[1]);
+        CardValue thirdCard = new CardValue(cardValues[2] + "_of_" + cardTypes[3]);
+        CardValue fourthCard = new CardValue(cardValues[9] + "_of_" + cardTypes[2]);
+        CardValue fifthCard = new CardValue(cardValues[1] + "_of_" + cardTypes[0]);
+
+        Result result = new Result(new CardValue[] { firstCard, secondCard }, new CardValue[] { firstCard, secondCard, thirdCard, fourthCard, fifthCard });
+
+        Assert.AreEqual(fourthCard, result.CommunityKicker);
+    }
+
+    [Test]
+    public void CommunityCards_LowestCardShouldNotBeSelectedAsKicker()
+    {
+        CardValue firstCard = new CardValue(cardValues[0] + "_of_" + cardTypes[0]);
+        CardValue secondCard = new CardValue(cardValues[7] + "_of_" + cardTypes[1]);
+        CardValue thirdCard = new CardValue(cardValues[2] + "_of_" + cardTypes[3]);
+        CardValue fourthCard = new CardValue(cardValues[9] + "_of_" + cardTypes[2]);
+        CardValue fifthCard = new CardValue(cardValues[1] + "_of_" + cardTypes[0]);
+
+        Result result = new Result(new CardValue[] { firstCard, secondCard }, new CardValue[] { firstCard, secondCard, thirdCard, fourthCard, fifthCard });
+
+        Assert.AreNotEqual(firstCard, result.CommunityKicker);
+    }
+
+    [Test]
     public void CalculateResult_ResultShouldBeHighestCard()
     {
         CardValue firstCard = new CardValue(cardValues[0] + "_of_" + cardTypes[0]);
