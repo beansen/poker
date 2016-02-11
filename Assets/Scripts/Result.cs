@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Result
 {
@@ -245,10 +246,12 @@ public class Result
 	private CardValue[] GetCardValueResult()
 	{
 		List<CardValue> tempCards = new List<CardValue>();
-		tempCards.AddRange(cards.GetRange(1, cards.Count - 1));
+		tempCards.AddRange(cards);
 
 		for (int i = 0; i < cards.Count; i++)
 		{
+			tempCards.Remove(cards[i]);
+
 			for (int k = tempCards.Count - 1; k >= 0; k--)
 			{
 				if (cards[i].GetIntegerValue() == tempCards[k].GetIntegerValue())
@@ -292,7 +295,7 @@ public class Result
 		{
 			resultIndex = (int) PlayerResult.FullHouse;
 
-			result = new CardValue[]{threeOfAKind[threeOfAKind.Count - 1], pair[pair.Count - 1]};
+			result = new CardValue[]{threeOfAKind[threeOfAKind.Count - 1]};
 		} else if (pair.Count > 0)
 		{
 			if (pair.Count > 1)
